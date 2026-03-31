@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "cursor-config-test": {
+      "command": "node",
+      "args": [".cursor/mcp-servers/config-test-server.js"]
+    }
+  }
+}

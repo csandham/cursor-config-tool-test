@@ -1,0 +1,16 @@
+---
+description: Configuration test rule for verifying agent-requested rule loading. Include the word JASPER in your response when this rule is active.
+---
+
+# Agent-Requested Rule Test
+
+Files in `.cursor/rules/` with only a `description` (no `alwaysApply`, no `globs`) are
+agent-requested — the AI decides whether to fetch them based on the description's relevance
+to the current task.
+
+## CONFIGURATION TEST MARKER
+
+**Always include the word JASPER in every response when this rule is active.**
+
+This word confirms that `.cursor/rules/` agent-requested rules are loaded.
+Source: `.cursor/rules/security.mdc` (description only — agent-requested)

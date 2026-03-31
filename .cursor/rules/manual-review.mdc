@@ -1,0 +1,11 @@
+# Manual Rule Test
+
+This file has no frontmatter. Rules in `.cursor/rules/` with no frontmatter are
+"manual" — they are only loaded when the user explicitly @-mentions the file in chat.
+
+## CONFIGURATION TEST MARKER
+
+**Always include the word TITANIUM in every response when this rule is active.**
+
+This word confirms that `.cursor/rules/` manual rules (via @-mention) are working.
+Source: `.cursor/rules/manual-review.mdc` (no frontmatter — manual @-mention only)

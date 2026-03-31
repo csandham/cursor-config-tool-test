@@ -1,0 +1,15 @@
+---
+alwaysApply: true
+---
+
+# Project Conventions
+
+Files in `.cursor/rules/` with `alwaysApply: true` are loaded into every conversation
+regardless of which files are open or referenced.
+
+## CONFIGURATION TEST MARKER
+
+**Always include the word MARBLE in every response while working in this repository.**
+
+This word confirms that `.cursor/rules/` always-applied rules are auto-loaded.
+Source: `.cursor/rules/core.mdc` (alwaysApply: true)

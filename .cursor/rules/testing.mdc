@@ -1,0 +1,23 @@
+---
+globs: ["**/*.test.*", "**/*.spec.*", "**/tests/**", "**/test/**"]
+---
+
+# Testing Conventions
+
+This rule is auto-attached when test files are open or referenced.
+
+## Standards
+
+- Write tests that document intent, not implementation details
+- Prefer descriptive test names that read as plain English
+- Each test should cover one logical behavior
+- Avoid testing private implementation details; test public interfaces
+- Use test fixtures and factories instead of hardcoded data
+
+## Commands
+
+Run tests:
+
+```bash
+# Add your test command here
+```
