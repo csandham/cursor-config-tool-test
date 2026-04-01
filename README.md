@@ -19,7 +19,6 @@ Each magic word maps to one Cursor configuration concept:
 | OCELOT     | `.cursor/skills/onboarding/SKILL.md`        | Skills                              | Skill invocation          |
 | VERMILLION | `.cursor/agents/reviewer.md`                | Custom agents / subagents           | Agent delegation          |
 | TUNGSTEN   | `.cursor/hooks/session-start.sh`            | Hooks (`sessionStart` context)      | Auto-injected at session start |
-| ~~GRANITE~~| ~~`src/AGENTS.md`~~                         | ~~Subdirectory-scoped `AGENTS.md`~~ | Removed — not reliably supported         |
 | PUMICE     | `.cursorrules`                              | Legacy root rules file              | Auto-loaded                    |
 | COBALT     | `.cursor/hooks/before-tool.sh`              | Hooks (`beforeToolExecution`)       | Before any tool call           |
 | NICKEL     | `.cursor/hooks/after-tool.sh`               | Hooks (`afterToolExecution`)        | After any tool call            |
@@ -79,24 +78,25 @@ See [TEST-PROMPT.md](TEST-PROMPT.md) for detailed instructions.
 | OCELOT — `.cursor/skills/`                          | ✅     |             |          |                |
 | VERMILLION — `.cursor/agents/`                      | ✅     |             |          |                |
 | TUNGSTEN — `.cursor/hooks.json` (sessionStart)      | ✅     |             |          |                |
-| ~~GRANITE — `src/AGENTS.md` (subdirectory)~~         | ❌     |             |          |                |
-| PUMICE — `.cursorrules` (legacy)                     |        |             |          |                |
-| COBALT — `.cursor/hooks.json` (beforeToolExecution)  |        |             |          |                |
-| NICKEL — `.cursor/hooks.json` (afterToolExecution)   |        |             |          |                |
+| PUMICE — `.cursorrules` (legacy)                     | ✅     |             |          |                |
+| COBALT — `.cursor/hooks.json` (preToolUse)           | ✅     |             |          |                |
+| NICKEL — `.cursor/hooks.json` (postToolUse)          | ✅     |             |          |                |
 
 Legend: ✅ confirmed · ❌ not supported · ⚠️ inconclusive (see notes below) · blank = untested
 
-### Cursor — test notes (2026-03-27)
+### Cursor — test notes (2026-04-01)
 
-All 9 configuration layers confirmed in a single test session. Every Cursor-native primitive is active and functioning.
+All 12 magic words confirmed in a single-shot test session (brand-new chat). Every Cursor-native primitive is active and functioning.
+
+**PUMICE — legacy `.cursorrules`** auto-loaded alongside `AGENTS.md` and `.cursor/rules/`. Cursor still supports the legacy root rules file.
+
+**COBALT / NICKEL — preToolUse / postToolUse hooks** fire automatically during every tool call. `preToolUse` injects via `agent_message` (with `permission: "allow"`); `postToolUse` injects via `additional_context`. Both confirmed during the MCP, agent, and skill tool calls in the single-shot test.
 
 **TUNGSTEN — sessionStart hook** fires at the start of a new agent session and injects context via `additional_context` stdout output. The `hooks.json` config uses `version: 1` with an object-style `hooks` map. Hook scripts must be executable (`chmod +x`). This hook does not re-run mid-conversation — open a brand-new Cursor chat to trigger it.
 
 **TITANIUM — manual @-mention rule** confirmed by @-mentioning `.cursor/rules/manual-review.mdc` directly in chat. Rules with no frontmatter are inert until explicitly referenced.
 
 **ONYX — MCP resource** confirmed by reading `config-test://status` via `FetchMcpResource`. Both MCP primitives (tools and resources) are fully supported.
-
-**GRANITE — subdirectory AGENTS.md** removed from the test harness. Cursor documents nested `AGENTS.md` support, but as of early 2026 subdirectory files are not reliably auto-loaded when working with files in that directory. See [forum bug report](https://forum.cursor.com/t/nested-agents-md-files-not-being-loaded/138411).
 
 ## Repository structure
 
