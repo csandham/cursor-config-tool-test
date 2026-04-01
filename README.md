@@ -69,18 +69,18 @@ See [TEST-PROMPT.md](TEST-PROMPT.md) for detailed instructions.
 
 | Config feature                                      | Cursor | Claude Code | Windsurf | GitHub Copilot |
 |-----------------------------------------------------|--------|-------------|----------|----------------|
-| BASALT — `AGENTS.md`                                | ✅     |             |          |                |
-| MARBLE — `.cursor/rules/` (alwaysApply)             | ✅     |             |          |                |
-| JASPER — `.cursor/rules/` (agent-requested)         | ✅     |             |          |                |
-| TITANIUM — `.cursor/rules/` (manual @-mention)      | ✅     |             |          |                |
-| FALCON — `.cursor/mcp.json` (tool)                  | ✅     |             |          |                |
-| ONYX — `.cursor/mcp.json` (resource)                | ✅     |             |          |                |
-| OCELOT — `.cursor/skills/`                          | ✅     |             |          |                |
-| VERMILLION — `.cursor/agents/`                      | ✅     |             |          |                |
-| TUNGSTEN — `.cursor/hooks.json` (sessionStart)      | ✅     |             |          |                |
-| PUMICE — `.cursorrules` (legacy)                     | ✅     |             |          |                |
-| COBALT — `.cursor/hooks.json` (preToolUse)           | ✅     |             |          |                |
-| NICKEL — `.cursor/hooks.json` (postToolUse)          | ✅     |             |          |                |
+| BASALT — `AGENTS.md`                                | ✅     | ❌          | ✅       | ✅             |
+| MARBLE — `.cursor/rules/` (alwaysApply)             | ✅     | ❌          | ✅       | ❌             |
+| JASPER — `.cursor/rules/` (agent-requested)         | ✅     | ❌          | ✅       | ❌             |
+| TITANIUM — `.cursor/rules/` (manual @-mention)      | ✅     | ❌          | ✅       | ❌             |
+| FALCON — `.cursor/mcp.json` (tool)                  | ✅     | ❌          | ❌       | ❌             |
+| ONYX — `.cursor/mcp.json` (resource)                | ✅     | ❌          | ❌       | ❌             |
+| OCELOT — `.cursor/skills/`                          | ✅     | ❌          | ✅       | ❌             |
+| VERMILLION — `.cursor/agents/`                      | ✅     | ❌          | ❌       | ❌             |
+| TUNGSTEN — `.cursor/hooks.json` (sessionStart)      | ✅     | ❌          | ❌       | ❌             |
+| PUMICE — `.cursorrules` (legacy)                     | ✅     | ❌          | ✅       | ❌             |
+| COBALT — `.cursor/hooks.json` (preToolUse)           | ✅     | ❌          | ❌       | ❌             |
+| NICKEL — `.cursor/hooks.json` (postToolUse)          | ✅     | ❌          | ❌       | ❌             |
 
 Legend: ✅ confirmed · ❌ not supported · ⚠️ inconclusive (see notes below) · blank = untested
 
@@ -97,6 +97,64 @@ All 12 magic words confirmed in a single-shot test session (brand-new chat). Eve
 **TITANIUM — manual @-mention rule** confirmed by @-mentioning `.cursor/rules/manual-review.mdc` directly in chat. Rules with no frontmatter are inert until explicitly referenced.
 
 **ONYX — MCP resource** confirmed by reading `config-test://status` via `FetchMcpResource`. Both MCP primitives (tools and resources) are fully supported.
+
+### Claude Code (VS Code Extension) — test notes (2026-04-01)
+
+0 of 12 magic words detected. None of the Cursor-native configuration primitives are supported.
+
+**BASALT — `AGENTS.md`** not loaded. Claude Code does not auto-load `AGENTS.md` from the repository root. Claude Code uses `.claude/` for project-specific configuration, not Cursor's `AGENTS.md` convention.
+
+**MARBLE / JASPER / TITANIUM — `.cursor/rules/`** not loaded. Claude Code does not read `.cursor/rules/*.mdc` files. The equivalent in Claude Code is `CLAUDE.md` files at the repository root or in subdirectories.
+
+**PUMICE — `.cursorrules`** not loaded. The legacy `.cursorrules` file is Cursor-specific and not recognized by Claude Code.
+
+**FALCON / ONYX — `.cursor/mcp.json`** not loaded. Claude Code does not read project-local MCP config from `.cursor/mcp.json`. MCP servers in Claude Code are configured globally via `.claude/settings.json` or VS Code user settings.
+
+**OCELOT — `.cursor/skills/`** not supported. Claude Code has a different skill system that does not use `.cursor/skills/` directory. Skills in Claude Code are defined in `.claude/` or loaded via extensions.
+
+**VERMILLION — `.cursor/agents/`** not supported. Claude Code has its own agent system (general-purpose, Explore, Plan, claude-code-guide) but does not load custom agents from `.cursor/agents/`. The agent type 'reviewer' was not found.
+
+**TUNGSTEN / COBALT / NICKEL — `.cursor/hooks.json`** not supported. Claude Code does not implement Cursor's hook system. Claude Code has its own hook mechanism configured via `.claude/settings.json`.
+
+**Conclusion:** The `.cursor/` directory structure and all Cursor-specific configuration mechanisms are proprietary to Cursor IDE. Claude Code uses a completely different configuration system centered around `.claude/` directories and `CLAUDE.md` files.
+
+### GitHub Copilot (VS Code) — test notes (2026-04-01)
+
+1 of 12 magic words detected. Only `AGENTS.md` auto-loading is supported. All Cursor-native configuration primitives are unsupported.
+
+**BASALT — `AGENTS.md`** auto-loaded as an attachment in the agent's system instructions. This is the only shared config mechanism between Cursor and GitHub Copilot.
+
+**MARBLE / JASPER / TITANIUM — `.cursor/rules/`** not loaded. VS Code does not read `.cursor/rules/*.mdc` files. The equivalent in GitHub Copilot is `.github/copilot-instructions.md` and `.instructions.md` files.
+
+**PUMICE — `.cursorrules`** not loaded. Legacy root rules are Cursor-specific.
+
+**FALCON / ONYX — `.cursor/mcp.json`** not loaded. VS Code does not read project-local MCP config from `.cursor/mcp.json`. MCP servers must be configured via VS Code settings (`mcp` section in `settings.json`).
+
+**OCELOT — `.cursor/skills/`** not supported. No equivalent skill system exists in GitHub Copilot. The closest equivalent is custom instructions via `.instructions.md` files or prompt files (`.prompt.md`).
+
+**VERMILLION — `.cursor/agents/`** not supported. GitHub Copilot uses `.agent.md` files for custom agent modes, not `.cursor/agents/`.
+
+**TUNGSTEN / COBALT / NICKEL — `.cursor/hooks.json`** not supported. VS Code has no agent hook system equivalent.
+
+### Windsurf — test notes (2026-04-01)
+
+6 of 12 magic words detected. Basic Cursor configuration files and skills are supported, but MCP servers, subagents, and hooks are not supported.
+
+**BASALT — `AGENTS.md`** auto-loaded and active. Windsurf supports Cursor's root instructions file.
+
+**MARBLE / JASPER / TITANIUM — `.cursor/rules/`** all loaded successfully. Windsurf supports Cursor's rule system including always-applied, agent-requested, and manual @-mention rules.
+
+**PUMICE — `.cursorrules`** auto-loaded alongside other config files. Windsurf supports Cursor's legacy root rules file.
+
+**OCELOT — `.cursor/skills/`** successfully invoked. Windsurf supports Cursor's skill system.
+
+**FALCON / ONYX — `.cursor/mcp.json`** not loaded. Windsurf does not support project-local MCP server configuration from `.cursor/mcp.json`.
+
+**VERMILLION — `.cursor/agents/`** not supported. Windsurf does not support Cursor's custom agent system.
+
+**TUNGSTEN / COBALT / NICKEL — `.cursor/hooks.json`** not supported. Windsurf does not implement Cursor's hook system.
+
+**Conclusion:** Windsurf provides partial compatibility with Cursor's configuration system, supporting basic files (AGENTS.md, .cursorrules, .cursor/rules/, .cursor/skills/) but lacking support for advanced features like MCP servers, custom agents, and hooks.
 
 ## Repository structure
 
