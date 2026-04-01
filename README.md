@@ -19,6 +19,10 @@ Each magic word maps to one Cursor configuration concept:
 | OCELOT     | `.cursor/skills/onboarding/SKILL.md`        | Skills                              | Skill invocation          |
 | VERMILLION | `.cursor/agents/reviewer.md`                | Custom agents / subagents           | Agent delegation          |
 | TUNGSTEN   | `.cursor/hooks/session-start.sh`            | Hooks (`sessionStart` context)      | Auto-injected at session start |
+| ~~GRANITE~~| ~~`src/AGENTS.md`~~                         | ~~Subdirectory-scoped `AGENTS.md`~~ | Removed — not reliably supported         |
+| PUMICE     | `.cursorrules`                              | Legacy root rules file              | Auto-loaded                    |
+| COBALT     | `.cursor/hooks/before-tool.sh`              | Hooks (`beforeToolExecution`)       | Before any tool call           |
+| NICKEL     | `.cursor/hooks/after-tool.sh`               | Hooks (`afterToolExecution`)        | After any tool call            |
 
 If a word appears in the AI's response, the corresponding config layer was loaded.
 
@@ -56,17 +60,9 @@ Cursor may require the **"Include third-party Plugins, Skills, and other configs
 
 ## Running the test
 
-### Single-shot test (6 magic words)
+### Single-shot test (12 magic words)
 
-Paste the prompt from [TEST-PROMPT.md](TEST-PROMPT.md) into the Cursor chat. Tests BASALT, MARBLE, JASPER, FALCON, OCELOT, and VERMILLION in one shot.
-
-### Manual tests (4 magic words)
-
-These require user interaction and cannot be tested in a single prompt:
-
-- **TUNGSTEN** — Open a brand-new Cursor chat after configuring the hook; the `sessionStart` hook only fires at session start
-- **TITANIUM** — Type `@manual-review` in chat to @-mention the manual rule file
-- **ONYX** — Read the `config-test://status` MCP resource via `FetchMcpResource`
+Paste the prompt from [TEST-PROMPT.md](TEST-PROMPT.md) into a **brand-new Cursor chat**. Tests all 12 magic words in one shot: BASALT, MARBLE, JASPER, TITANIUM, PUMICE, FALCON, ONYX, OCELOT, VERMILLION, TUNGSTEN, COBALT, and NICKEL. A fresh session is required so the `sessionStart` hook fires (TUNGSTEN). The `preToolUse` and `postToolUse` hooks (COBALT, NICKEL) fire automatically during the tool calls the test performs. The prompt begins with `@manual-review` to test manual @-mention rule loading (TITANIUM) — ensure Cursor resolves the @-mention when pasting.
 
 See [TEST-PROMPT.md](TEST-PROMPT.md) for detailed instructions.
 
@@ -83,6 +79,10 @@ See [TEST-PROMPT.md](TEST-PROMPT.md) for detailed instructions.
 | OCELOT — `.cursor/skills/`                          | ✅     |             |          |                |
 | VERMILLION — `.cursor/agents/`                      | ✅     |             |          |                |
 | TUNGSTEN — `.cursor/hooks.json` (sessionStart)      | ✅     |             |          |                |
+| ~~GRANITE — `src/AGENTS.md` (subdirectory)~~         | ❌     |             |          |                |
+| PUMICE — `.cursorrules` (legacy)                     |        |             |          |                |
+| COBALT — `.cursor/hooks.json` (beforeToolExecution)  |        |             |          |                |
+| NICKEL — `.cursor/hooks.json` (afterToolExecution)   |        |             |          |                |
 
 Legend: ✅ confirmed · ❌ not supported · ⚠️ inconclusive (see notes below) · blank = untested
 
@@ -96,11 +96,14 @@ All 9 configuration layers confirmed in a single test session. Every Cursor-nati
 
 **ONYX — MCP resource** confirmed by reading `config-test://status` via `FetchMcpResource`. Both MCP primitives (tools and resources) are fully supported.
 
+**GRANITE — subdirectory AGENTS.md** removed from the test harness. Cursor documents nested `AGENTS.md` support, but as of early 2026 subdirectory files are not reliably auto-loaded when working with files in that directory. See [forum bug report](https://forum.cursor.com/t/nested-agents-md-files-not-being-loaded/138411).
+
 ## Repository structure
 
 ```
 .
 ├── AGENTS.md                                # Root instructions (BASALT)
+├── .cursorrules                             # Legacy root rules (PUMICE)
 ├── README.md                                # Documentation and results
 ├── TEST-PROMPT.md                           # Test prompts
 └── .cursor/
@@ -109,7 +112,6 @@ All 9 configuration layers confirmed in a single test session. Every Cursor-nati
     ├── rules/
     │   ├── core.mdc                         # Always-applied rules (MARBLE)
     │   ├── security.mdc                     # Agent-requested rules (JASPER)
-    │   ├── testing.mdc                      # Glob auto-attached for test files (unreliable)
     │   └── manual-review.mdc               # Manual @-mention rules (TITANIUM)
     ├── skills/
     │   ├── onboarding/SKILL.md              # Onboarding skill (OCELOT)
@@ -119,7 +121,9 @@ All 9 configuration layers confirmed in a single test session. Every Cursor-nati
     │   ├── reviewer.md                      # Reviewer subagent (VERMILLION)
     │   └── architect.md                     # Architect subagent
     ├── hooks/
-    │   └── audit.sh                         # Hook script: logs all agent events to /tmp/
+    │   ├── audit.sh                         # Hook script: logs all agent events to /tmp/
+    │   ├── before-tool.sh                   # beforeToolExecution hook (COBALT)
+    │   └── after-tool.sh                    # afterToolExecution hook (NICKEL)
     └── mcp-servers/
         └── config-test-server.js            # MCP tool (FALCON) + resource (ONYX)
 ```

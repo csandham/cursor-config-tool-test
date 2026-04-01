@@ -16,6 +16,7 @@ Source: `AGENTS.md` (repository root)
 The repo is structured to exercise every Cursor project-level primitive:
 
 - `AGENTS.md` — root instructions, auto-loaded by supporting IDEs
+- `.cursorrules` — legacy root rules file (predecessor to `.cursor/rules/`)
 - `.cursor/rules/` — project rules (always-applied, agent-requested, manual)
 - `.cursor/skills/` — repeatable workflow playbooks
 - `.cursor/agents/` — specialized subagent personas
@@ -41,15 +42,20 @@ Each config layer contains a unique magic word. If the word appears in an AI res
 
 ## Testing expectations
 
-- Run the single-shot test prompt from `TEST-PROMPT.md` after any config change
+- Run the single-shot test prompt from `TEST-PROMPT.md` in a **brand-new chat** after any config change
 - Verify each magic word appears in the response for its corresponding config layer
-- Manual tests (TITANIUM, TUNGSTEN, ONYX) must be run separately — see `TEST-PROMPT.md`
+- The single-shot test covers all 12 magic words — a fresh session is required so `sessionStart` fires (TUNGSTEN)
+- When pasting the prompt, ensure Cursor resolves the `@manual-review` @-mention for TITANIUM
 
-> **Note on glob-attached rules:** Cursor's auto-attached (`globs`) rule type has known, unresolved reliability issues as of early 2026. It has been removed from this test harness. Use `alwaysApply: true` or directory-scoped `AGENTS.md` files for reliable context injection.
+> **Note on glob-attached rules:** Cursor's auto-attached (`globs`) rule type has known, unresolved reliability issues as of early 2026. It has been removed from this test harness. Use `alwaysApply: true` for reliable context injection.
+
+> **Note on subdirectory AGENTS.md:** Cursor documents nested `AGENTS.md` support in subdirectories, but as of early 2026 it does not reliably auto-load when files in that directory are referenced. This test has been removed from the harness.
 
 ### Known triggering conditions
 
-**TUNGSTEN (sessionStart hook):** Open a brand-new Cursor chat after the hook is configured. The `session-start.sh` hook only runs at session start and cannot be triggered mid-conversation.
+**TUNGSTEN (sessionStart hook):** Open a brand-new Cursor chat after the hook is configured. The `session-start.sh` hook only runs at session start and cannot be triggered mid-conversation. Included in the single-shot test (which requires a fresh session anyway).
+
+**COBALT / NICKEL (preToolUse / postToolUse hooks):** These fire automatically during any tool call. The single-shot test triggers multiple tool calls (MCP, reviewer agent, skill), so both hooks are exercised without additional steps.
 
 ## Security and privacy
 
